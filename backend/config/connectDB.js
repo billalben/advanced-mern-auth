@@ -13,7 +13,7 @@ const clientOptions = {
     strict: true,
     deprecationErrors: true,
   },
-  dbName: "userDB",
+  dbName: "authDB",
 };
 
 /**
