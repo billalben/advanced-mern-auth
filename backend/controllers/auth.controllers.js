@@ -101,6 +101,7 @@ export const login = (req, res) => {
   res.send("Login route");
 };
 
-export const logout = (req, res) => {
-  res.send("Logout route");
+export const logout = async (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ success: true, message: "Logged out successfully" });
 };
