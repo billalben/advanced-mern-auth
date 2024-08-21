@@ -1,6 +1,9 @@
 "use strict";
 
-import { VERIFICATION_EMAIL_TEMPLATE } from "./emailTemplates.js";
+import {
+  PASSWORD_RESET_REQUEST_TEMPLATE,
+  VERIFICATION_EMAIL_TEMPLATE,
+} from "./emailTemplates.js";
 import { mailtrapClient, sender } from "./mailtrap.config.js";
 
 /**
@@ -34,7 +37,7 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 
 /**
  * Sends a welcome email to the specified email address.
- * @param {string} email - The email address to send the welcome email to. 
+ * @param {string} email - The email address to send the welcome email to.
  * @param {string} name - The name of the user to include in the email.
  * @throws {Error} When the email or name is missing.
  */
@@ -58,5 +61,34 @@ export const sendWelcomeEmail = async (email, name) => {
     });
   } catch (error) {
     throw new Error(`Error sending welcome email: ${error}`);
+  }
+};
+
+/**
+ * Sends URL to reset the password to the specified email address.
+ * @param {string} email - The email address to send the password reset email to.
+ * @param {string} resetURL - The URL to include in the email.
+ * @throws {Error} When the email or reset URL is missing.
+ */
+
+export const sendPasswordResetEmail = async (email, resetURL) => {
+  if (!email || !resetURL) {
+    throw new Error(
+      "Email and reset URL are required to send a password reset email"
+    );
+  }
+
+  const recipient = [{ email }];
+
+  try {
+    await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      subject: "Reset your password",
+      html: PASSWORD_RESET_REQUEST_TEMPLATE(resetURL),
+      category: "Password Reset",
+    });
+  } catch (error) {
+    throw new Error(`Error sending password reset email: ${error}`);
   }
 };
