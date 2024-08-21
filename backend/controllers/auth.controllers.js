@@ -7,6 +7,7 @@ import User from "../models/user.model.js";
 import setAuthToken from "../utils/setAuthToken.js";
 import validateSignup from "../utils/validateSignup.js";
 import { json } from "express";
+import { sendVerificationEmail } from "../mailtrap/emails.js";
 
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -38,7 +39,9 @@ export const signup = async (req, res) => {
       verificationTokenExpiresAt: Date.now() + 86_400_000, // 24 hours in milliseconds
     });
 
-    const token = setAuthToken(res, user._id);
+    setAuthToken(res, user._id);
+
+    await sendVerificationEmail(user?.email, verificationToken);
 
     return res.status(201).json({
       success: true,

@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
  * @param {import('express').Response} res - The Express response object to set the cookie on.
  * @param {string} userId - The ID of the user for whom the token is being generated.
  * @throws {Error} Throws an error if the JWT secret is not defined, or if there is an issue with token generation.
- * @returns {string} The generated JWT token.
  */
 
 const setAuthToken = (res, userId) => {
@@ -36,8 +35,6 @@ const setAuthToken = (res, userId) => {
 
     // Set the cookie with the token
     res.cookie("token", token, cookieOptions);
-
-    return token;
   } catch (error) {
     // console.error("Error generating token:", error);
     throw new Error("Token generation failed.");
