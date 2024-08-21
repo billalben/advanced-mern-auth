@@ -6,8 +6,7 @@ import User from "../models/user.model.js";
 
 import setAuthToken from "../utils/setAuthToken.js";
 import validateSignup from "../utils/validateSignup.js";
-import { json } from "express";
-import { sendVerificationEmail } from "../mailtrap/emails.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
 
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -36,7 +35,7 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
       verificationToken,
-      verificationTokenExpiresAt: Date.now() + 86_400_000, // 24 hours in milliseconds
+      verificationTokenExpiresAt: Date.now() + 3_600_000, // 1 hour in milliseconds
     });
 
     setAuthToken(res, user._id);
@@ -53,6 +52,48 @@ export const signup = async (req, res) => {
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error?.message });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  const { code } = req.body;
+
+  if (!code) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Verification code is required" });
+  }
+
+  try {
+    const user = await User.findOne({
+      verificationToken: code,
+      verificationTokenExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired verification code",
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+    await user.save();
+
+    await sendWelcomeEmail(user?.email, user?.name);
+
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user: {
+        ...user?._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

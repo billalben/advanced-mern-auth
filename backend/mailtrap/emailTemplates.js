@@ -27,7 +27,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = (verificationToken = "ERROR") => {
         </div>
         <p>
           Enter this code on the verification page to complete your registration. <br />
-          This code will expire in 15 minutes for security reasons. <br />
+          This code will expire in 1 hour for security reasons. <br />
           If you didn't create an account with us, please ignore this email.
         </p>
         <p>Best regards,<br>Your App Team</p>
