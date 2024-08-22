@@ -238,3 +238,20 @@ export const resetPassword = async (req, res) => {
     return res.status(400).json({ success: false, message: error?.message });
   }
 };
+
+export const checkAuth = async (req, res) => {
+  try {
+    // Get user details from the database and exclude the password field
+    const user = await User.findById(req.userId).select("-password");
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({ success: true, user });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
