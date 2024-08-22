@@ -9,9 +9,11 @@ import setAuthToken from "../utils/setAuthToken.js";
 import validateSignup from "../utils/validateSignup.js";
 import {
   sendPasswordResetEmail,
+  sendResetSuccessEmail,
   sendVerificationEmail,
   sendWelcomeEmail,
 } from "../mailtrap/emails.js";
+import isValidPassword from "../utils/validatePassword.js";
 
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -42,8 +44,6 @@ export const signup = async (req, res) => {
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 3_600_000, // 1 hour in milliseconds
     });
-
-    setAuthToken(res, user._id);
 
     await sendVerificationEmail(user?.email, verificationToken);
 
@@ -89,7 +89,7 @@ export const verifyEmail = async (req, res) => {
 
     await sendWelcomeEmail(user?.email, user?.name);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Email verified successfully",
       user: {
@@ -98,7 +98,7 @@ export const verifyEmail = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -131,7 +131,7 @@ export const login = async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Logged in successfully",
       user: {
@@ -140,7 +140,7 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error?.message });
   }
 };
 
@@ -182,12 +182,59 @@ export const forgotPassword = async (req, res) => {
       `${process.env.CLIENT_URL}/reset-password/${resetToken}`
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Password reset link sent to your email",
     });
   } catch (error) {
-    console.log("Error in forgotPassword ", error);
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error?.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  if (!token || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Token and password are required" });
+  }
+
+  if (!isValidPassword(password)) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Password must be at least 6 characters long and contain at least one letter, one number, and one special character.",
+    });
+  }
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired reset token" });
+    }
+
+    // update password
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+
+    await sendResetSuccessEmail(user.email);
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password reset successful" });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error?.message });
   }
 };

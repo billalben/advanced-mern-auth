@@ -9,21 +9,15 @@ import jwt from "jsonwebtoken";
  */
 
 const setAuthToken = (res, userId) => {
-  if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not defined");
-  if (!userId || !res) throw new Error("Invalid userId or response object.");
-
   // Define constants for token and cookie expiration
   const TOKEN_EXPIRATION = "7d";
   const COOKIE_EXPIRATION = 7 * 86_400_000; // 7 days in milliseconds
 
-  // Define token options
-  const tokenOptions = {
-    expiresIn: TOKEN_EXPIRATION,
-  };
-
   try {
     // Generate a JWT token
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, tokenOptions);
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+      expiresIn: TOKEN_EXPIRATION,
+    });
 
     // Set cookie options
     const cookieOptions = {
@@ -36,7 +30,6 @@ const setAuthToken = (res, userId) => {
     // Set the cookie with the token
     res.cookie("token", token, cookieOptions);
   } catch (error) {
-    // console.error("Error generating token:", error);
     throw new Error("Token generation failed.");
   }
 };

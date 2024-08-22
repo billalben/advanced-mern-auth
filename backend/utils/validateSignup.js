@@ -1,3 +1,7 @@
+"use strict";
+
+import isValidPassword from "./validatePassword.js";
+
 /**
  * Validates the provided user fields.
  *
@@ -28,13 +32,7 @@ const validateSignup = (name, email, password) => {
 
   // Validate password
   const passwordMinLength = 6;
-  const passwordRegex =
-    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-  if (
-    !password ||
-    password.length < passwordMinLength ||
-    !passwordRegex.test(password)
-  ) {
+  if (!isValidPassword(password)) {
     errors.push({
       type: "password",
       error: `Password must be at least ${passwordMinLength} characters long and contain at least one letter, one number, and one special character.`,
