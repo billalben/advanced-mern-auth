@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import FloatingShape from "./components/FloatingShape";
-import RegisterPage from "./RegisterPage";
+import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 
 const App = () => {
