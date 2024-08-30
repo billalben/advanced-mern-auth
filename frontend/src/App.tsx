@@ -2,10 +2,12 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import FloatingShape from "./components/FloatingShape";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
+import VerifyEmailPage from "./pages/EmailVerificationPage";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
+    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
       <FloatingShape
         color="bg-green-500"
         size="w-64 h-64"
@@ -32,7 +34,7 @@ const App = () => {
         <Route path="/" element={<h1>dashboard page</h1>} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/verify-email" element={<h1>verify email page</h1>} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route
           path="/forgot-password"
           element={<h1>forgot password page</h1>}
@@ -43,6 +45,8 @@ const App = () => {
         />
         <Route path="*" element={<Navigate to="/" replace={true} />} />
       </Routes>
+
+      <Toaster />
     </div>
   );
 };
