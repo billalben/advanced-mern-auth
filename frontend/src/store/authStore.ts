@@ -26,7 +26,7 @@ interface AuthState {
 
 const API_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:5000/api/auth"
+    ? "http://localhost:5011/api/auth"
     : "/api/auth";
 
 axios.defaults.withCredentials = true;

@@ -2,7 +2,9 @@
 
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import cookieParser from "cookie-parser";
+// import path from "path";
 
 import { connectDB, disconnectDB } from "./config/connectDB.js";
 
@@ -12,6 +14,9 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5011;
+// const __dirname = path.resolve();
+
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 app.use(express.json()); // To parse JSON bodies
 app.use(cookieParser()); // To parse cookies in the request headers
