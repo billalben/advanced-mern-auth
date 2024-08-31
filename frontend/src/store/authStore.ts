@@ -5,6 +5,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  isVerified: boolean;
 }
 
 interface AuthState {
@@ -69,9 +70,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         email,
         password,
       });
+      const user = response.data.user;
       set({
         isAuthenticated: true,
-        user: response.data.user,
+        user,
         error: null,
         isLoading: false,
       });
