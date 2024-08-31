@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user?.isVerified) {
+  if (user?.isVerified === false) {
     return <Navigate to="/verify-email" replace />;
   }
 
@@ -34,7 +34,7 @@ const RedirectAuthenticatedUser = ({
     return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>;
+  return children;
 };
 
 const App = () => {
@@ -43,14 +43,7 @@ const App = () => {
       <FloatingShapes />
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Public Routes */}
           <Route
             path="/register"
             element={
@@ -75,8 +68,16 @@ const App = () => {
               </RedirectAuthenticatedUser>
             }
           />
-          {/* Other Routes */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+
+          {/* Protected Route */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Suspense>
       <Toaster />

@@ -49,7 +49,7 @@ const VerifyEmailPage = () => {
 
     await verifyEmail(verificationCode)
       .then(() => {
-        navigate("/");
+        navigate("/login");
         toast.success("Email verified successfully");
       })
       .catch(() => {

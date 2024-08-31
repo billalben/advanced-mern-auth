@@ -5,6 +5,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -18,15 +19,16 @@ const RegisterPage = () => {
     e.preventDefault();
 
     if (!name || !email || !password) {
-      alert("All fields are required.");
+      toast.error("Please fill out all fields.");
       return;
     }
 
     try {
       await register(email, password, name);
+      toast.success("Account created successfully. Please verify your email.");
       navigate("/verify-email");
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error("Error signing up");
     }
   };
 
@@ -76,7 +78,7 @@ const RegisterPage = () => {
             }
             aria-invalid={!!error}
           />
-          {error && <p className="mt-2 font-semibold text-red-500">{error}</p>}
+          {error && <p className="mt-2 font-semibold text-red-500">{error as string}</p>}
 
           <PasswordStrengthMeter password={password} />
 

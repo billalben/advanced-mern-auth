@@ -10,8 +10,8 @@ import jwt from "jsonwebtoken";
 
 const setAuthToken = (res, userId) => {
   // Define constants for token and cookie expiration
-  const TOKEN_EXPIRATION = "7d";
-  const COOKIE_EXPIRATION = 7 * 86_400_000; // 7 days in milliseconds
+  const TOKEN_EXPIRATION = "1d";
+  const COOKIE_EXPIRATION = 86_400_000; // 1 day in milliseconds
 
   try {
     // Generate a JWT token
