@@ -10,11 +10,7 @@ import { connectDB, disconnectDB } from "./config/connectDB.js";
 
 import authRoute from "./routes/auth.route.js";
 
-import job from "./config/cron.js";
-
 dotenv.config();
-
-job.start();
 
 const app = express();
 const PORT = process.env.PORT || 5011;
