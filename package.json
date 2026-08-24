@@ -10,6 +10,10 @@
   "scripts": {
     "dev:backend": "pnpm --filter backend dev",
     "start:backend": "pnpm --filter backend start",
+    "dev:server": "pnpm --filter server dev",
+    "build:server": "pnpm --filter server build",
+    "start:server": "pnpm --filter server start",
+    "typecheck:server": "pnpm --filter server typecheck",
     "dev:client": "pnpm --filter client dev",
     "build:client": "pnpm --filter client build"
   },
