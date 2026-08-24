@@ -42,7 +42,7 @@ const RedirectAuthenticatedUser = ({
 
 const App = () => {
   return (
-    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
+    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-linear-to-br from-gray-900 via-green-900 to-emerald-900">
       <FloatingShapes />
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>

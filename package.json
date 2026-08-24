@@ -9,11 +9,9 @@
   },
   "scripts": {
     "dev:backend": "pnpm --filter backend dev",
-    "dev:frontend": "pnpm --filter frontend dev",
+    "start:backend": "pnpm --filter backend start",
     "dev:client": "pnpm --filter client dev",
-    "build:frontend": "pnpm --filter frontend build",
-    "build:client": "pnpm --filter client build",
-    "start:backend": "pnpm --filter backend start"
+    "build:client": "pnpm --filter client build"
   },
   "pnpm": {
     "overrides": {
