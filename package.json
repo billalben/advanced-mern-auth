@@ -10,7 +10,15 @@
   "scripts": {
     "dev:backend": "pnpm --filter backend dev",
     "dev:frontend": "pnpm --filter frontend dev",
+    "dev:client": "pnpm --filter client dev",
     "build:frontend": "pnpm --filter frontend build",
+    "build:client": "pnpm --filter client build",
     "start:backend": "pnpm --filter backend start"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^18.3.31",
+      "@types/react-dom": "^18.3.7"
+    }
   }
 }
