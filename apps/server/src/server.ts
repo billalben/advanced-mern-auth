@@ -1,17 +1,12 @@
 import { createServer } from "node:http";
 import { env } from "./config/env";
 import { connectDB, disconnectDB } from "./config/database";
-import { createPingJob } from "./config/cron";
 import { logger } from "./config/logger";
 import { createApp } from "./app";
 
 const main = async (): Promise<void> => {
   try {
     await connectDB(env.MONGODB_URI);
-
-    const pingJob = env.PING_URL ? createPingJob(env.PING_URL) : null;
-    pingJob?.start();
-    if (pingJob) logger.info("Cron job started");
 
     const app = createApp();
     const server = createServer(app);
@@ -22,7 +17,6 @@ const main = async (): Promise<void> => {
 
     const shutdown = async (signal: string): Promise<void> => {
       logger.info({ signal }, "Shutdown signal received");
-      pingJob?.stop();
       server.close();
       await disconnectDB();
       process.exit(0);
