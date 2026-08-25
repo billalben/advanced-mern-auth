@@ -3,12 +3,7 @@ import { ZodError } from "zod";
 import { AppError } from "../errors/AppError";
 import { logger } from "../../config/logger";
 
-export const errorHandler: ErrorRequestHandler = (
-  err,
-  _req,
-  res,
-  _next,
-) => {
+export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
     res.status(400).json({
       success: false,

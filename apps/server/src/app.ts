@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import mongoSanitize from "express-mongo-sanitize";
+import mongoSanitize from "@exortek/express-mongo-sanitize";
 import rateLimit from "express-rate-limit";
 import { pinoHttp } from "pino-http";
 import { env } from "./config/env";
@@ -35,6 +35,11 @@ export const createApp = (): Express => {
       message: "Too many requests, please try again later.",
     },
   });
+
+  app.get("/", (_req, res) => {
+    res.json({ success: true, message: "welcome to the api" });
+  });
+
   app.use("/api/", apiLimiter);
 
   app.use("/api/auth", authRouter);

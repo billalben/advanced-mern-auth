@@ -23,11 +23,13 @@ authRouter.post(
   validateAll(verifyEmailSchema),
   ctrl.verifyEmail,
 );
+
 authRouter.post(
   "/forgot-password",
   validateAll(forgotPasswordSchema),
   ctrl.forgotPassword,
 );
+
 authRouter.post(
   "/reset-password/:token",
   validateAll(resetPasswordSchema),

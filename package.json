@@ -8,8 +8,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev:backend": "pnpm --filter backend dev",
-    "start:backend": "pnpm --filter backend start",
     "dev:server": "pnpm --filter server dev",
     "build:server": "pnpm --filter server build",
     "start:server": "pnpm --filter server start",
