@@ -17,6 +17,12 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+      '@tanstack/react-query':
+        specifier: ^5.59.0
+        version: 5.102.4(react@19.2.8)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.59.0
+        version: 5.102.4(@tanstack/react-query@5.102.4(react@19.2.8))(react@19.2.8)
       axios:
         specifier: ^1.7.5
         version: 1.19.0
@@ -41,9 +47,6 @@ importers:
       tailwindcss:
         specifier: ^4.0.0
         version: 4.3.3
-      zustand:
-        specifier: ^4.5.5
-        version: 4.5.7(@types/react@18.3.31)(react@19.2.8)
     devDependencies:
       '@types/node':
         specifier: ^24.13.3
@@ -919,6 +922,23 @@ packages:
     resolution: {integrity: sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw==}
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7 || ^8
+
+  '@tanstack/query-core@5.102.4':
+    resolution: {integrity: sha512-6eXkL+KFyVAZdpKoThCjPQQylZK8/ZOMYTJEVoPtHLkLs2PYks6vUiim9qzgvFXakSkRIAZwAZTeZLIJmpgRpQ==}
+
+  '@tanstack/query-devtools@5.102.4':
+    resolution: {integrity: sha512-dEzr6CjGTnELaqo2iJ/emNWrbGv6pGyiLarcspnuOVYH4eOj2S7xmfolv76tRp012N+EIRorwzRNZe3aCeqFDw==}
+
+  '@tanstack/react-query-devtools@5.102.4':
+    resolution: {integrity: sha512-zGT40//ZoQfw4aAssPghWkpWkZtYf7gosVpaFEzshABqLYETeK87uqUaBWW/wb+9m/3K+asW6xJoo1IeNiQQvg==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.102.4
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.102.4':
+    resolution: {integrity: sha512-Cn6X2eqFHjCtA/sfM/3eiT6/YmcPqo30twNHUlqkfz9LBqRzdt8GN/mFMWXn/qTacYUo3d4nycMzn3LWZmJ7MQ==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@types/bcryptjs@3.0.0':
     resolution: {integrity: sha512-WRZOuCuaz8UcZZE4R5HXTco2goQSI2XxjGY3hbM/xDvwmqFWd4ivooImsMx65OKM6CtNKbnZ5YL+YwAwK7c1dg==}
@@ -2033,11 +2053,6 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  use-sync-external-store@1.6.0:
-    resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -2098,21 +2113,6 @@ packages:
 
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
-
-  zustand@4.5.7:
-    resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
-    engines: {node: '>=12.7.0'}
-    peerDependencies:
-      '@types/react': ^18.3.31
-      immer: '>=9.0.6'
-      react: '>=16.8'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      immer:
-        optional: true
-      react:
-        optional: true
 
 snapshots:
 
@@ -2555,6 +2555,21 @@ snapshots:
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
       vite: 8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)
+
+  '@tanstack/query-core@5.102.4': {}
+
+  '@tanstack/query-devtools@5.102.4': {}
+
+  '@tanstack/react-query-devtools@5.102.4(@tanstack/react-query@5.102.4(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@tanstack/query-devtools': 5.102.4
+      '@tanstack/react-query': 5.102.4(react@19.2.8)
+      react: 19.2.8
+
+  '@tanstack/react-query@5.102.4(react@19.2.8)':
+    dependencies:
+      '@tanstack/query-core': 5.102.4
+      react: 19.2.8
 
   '@types/bcryptjs@3.0.0':
     dependencies:
@@ -3706,10 +3721,6 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  use-sync-external-store@1.6.0(react@19.2.8):
-    dependencies:
-      react: 19.2.8
-
   vary@1.1.2: {}
 
   vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12):
@@ -3736,10 +3747,3 @@ snapshots:
   wrappy@1.0.2: {}
 
   zod@4.4.3: {}
-
-  zustand@4.5.7(@types/react@18.3.31)(react@19.2.8):
-    dependencies:
-      use-sync-external-store: 1.6.0(react@19.2.8)
-    optionalDependencies:
-      '@types/react': 18.3.31
-      react: 19.2.8

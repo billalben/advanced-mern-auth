@@ -1,20 +1,21 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useAuthStore } from "../store/authStore";
 import Input from "../components/Input";
 import { ArrowLeft, Loader, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useForgotPasswordMutation } from "../features/auth/mutations";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const { isLoading, forgotPassword } = useAuthStore();
+  const { mutateAsync: forgotPassword, isPending } =
+    useForgotPasswordMutation();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await forgotPassword(email);
+    await forgotPassword({ email });
     setIsSubmitted(true);
   };
 
@@ -26,7 +27,7 @@ const ForgotPasswordPage = () => {
       className="w-full max-w-md overflow-hidden rounded-2xl bg-gray-800 bg-opacity-50 shadow-xl backdrop-blur-xl backdrop-filter"
     >
       <div className="p-8">
-        <h2 className="mb-6 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-center text-3xl font-bold text-transparent">
+        <h2 className="mb-6 bg-linear-to-r from-green-400 to-emerald-500 bg-clip-text text-center text-3xl font-bold text-transparent">
           Forgot Password
         </h2>
 
@@ -47,10 +48,10 @@ const ForgotPasswordPage = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 font-bold text-white shadow-lg transition duration-200 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              className="w-full rounded-lg bg-linear-to-r from-green-500 to-emerald-600 px-4 py-3 font-bold text-white shadow-lg transition duration-200 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
               type="submit"
             >
-              {isLoading ? (
+              {isPending ? (
                 <Loader className="mx-auto size-6 animate-spin" />
               ) : (
                 "Send Reset Link"

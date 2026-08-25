@@ -5,7 +5,8 @@ import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import { useAuthStore } from "../store/authStore";
+import { extractErrorMessage } from "../lib/api/auth.api";
+import { useSignupMutation } from "../features/auth/mutations";
 import toast from "react-hot-toast";
 
 const RegisterPage = () => {
@@ -14,7 +15,9 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const { register, error, isLoading } = useAuthStore();
+  const { mutateAsync: register, isPending, error } = useSignupMutation();
+
+  const errorMessage = error ? extractErrorMessage(error) : null;
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,7 +28,7 @@ const RegisterPage = () => {
     }
 
     try {
-      await register(email, password, name);
+      await register({ email, password, name });
       toast.success("Account created successfully. Please verify your email.");
       navigate("/verify-email");
     } catch {
@@ -41,7 +44,7 @@ const RegisterPage = () => {
       className="w-full max-w-md overflow-hidden bg-gray-800 bg-opacity-50 shadow-xl rounded-2xl backdrop-blur-xl backdrop-filter"
     >
       <div className="p-8">
-        <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">
+        <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-linear-to-r from-green-400 to-emerald-500 bg-clip-text">
           Create Account
         </h2>
 
@@ -55,7 +58,7 @@ const RegisterPage = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setName(e.target.value)
             }
-            aria-invalid={!!error}
+            aria-invalid={!!errorMessage}
           />
           <Input
             icon={Mail}
@@ -66,7 +69,7 @@ const RegisterPage = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setEmail(e.target.value)
             }
-            aria-invalid={!!error}
+            aria-invalid={!!errorMessage}
           />
           <Input
             icon={Lock}
@@ -77,21 +80,23 @@ const RegisterPage = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setPassword(e.target.value)
             }
-            aria-invalid={!!error}
+            aria-invalid={!!errorMessage}
           />
-          {error && <p className="mt-2 font-semibold text-red-500">{error as string}</p>}
+          {errorMessage && (
+            <p className="mt-2 font-semibold text-red-500">{errorMessage}</p>
+          )}
 
           <PasswordStrengthMeter password={password} />
 
           <motion.button
-            className="w-full px-4 py-3 mt-5 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="w-full px-4 py-3 mt-5 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            disabled={isLoading}
-            aria-busy={isLoading}
+            disabled={isPending}
+            aria-busy={isPending}
           >
-            {isLoading ? (
+            {isPending ? (
               <Loader className="mx-auto animate-spin" size={24} />
             ) : (
               "Sign Up"

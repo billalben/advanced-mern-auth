@@ -1,16 +1,25 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { motion } from "framer-motion";
-import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
 import Input from "../components/Input";
 import { Lock } from "lucide-react";
+import { extractErrorMessage } from "../lib/api/auth.api";
+import { useResetPasswordMutation } from "../features/auth/mutations";
 import toast from "react-hot-toast";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { resetPassword, error, isLoading, message } = useAuthStore();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const {
+    mutateAsync: resetPassword,
+    isPending,
+    error,
+  } = useResetPasswordMutation();
+
+  const errorMessage = error ? extractErrorMessage(error) : null;
 
   const { token } = useParams();
   const navigate = useNavigate();
@@ -23,7 +32,11 @@ const ResetPasswordPage = () => {
       return;
     }
     try {
-      await resetPassword(token as string, password);
+      const message = await resetPassword({
+        token: token as string,
+        password,
+      });
+      setSuccessMessage(message);
 
       toast.success(
         "Password reset successfully, redirecting to login page...",
@@ -44,11 +57,15 @@ const ResetPasswordPage = () => {
       className="w-full max-w-md overflow-hidden bg-gray-800 bg-opacity-50 shadow-xl rounded-2xl backdrop-blur-xl backdrop-filter"
     >
       <div className="p-8">
-        <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">
+        <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-linear-to-r from-green-400 to-emerald-500 bg-clip-text">
           Reset Password
         </h2>
-        {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
-        {message && <p className="mb-4 text-sm text-green-500">{message}</p>}
+        {errorMessage && (
+          <p className="mb-4 text-sm text-red-500">{errorMessage}</p>
+        )}
+        {successMessage && (
+          <p className="mb-4 text-sm text-green-500">{successMessage}</p>
+        )}
 
         <form onSubmit={handleSubmit}>
           <Input
@@ -72,11 +89,11 @@ const ResetPasswordPage = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full px-4 py-3 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="w-full px-4 py-3 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             type="submit"
-            disabled={isLoading}
+            disabled={isPending}
           >
-            {isLoading ? "Resetting..." : "Set New Password"}
+            {isPending ? "Resetting..." : "Set New Password"}
           </motion.button>
         </form>
       </div>

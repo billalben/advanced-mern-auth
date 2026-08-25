@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
-import { useAuthStore } from "../store/authStore";
 import formatDate from "../utils/date";
+import { useAuth } from "../features/auth/useAuth";
+import { useLogoutMutation } from "../features/auth/mutations";
 
 const DashboardPage = () => {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuth();
+  const { mutate: logout, isPending: isLoggingOut } = useLogoutMutation();
 
   return (
     <motion.div
@@ -13,7 +15,7 @@ const DashboardPage = () => {
       transition={{ duration: 0.5 }}
       className="w-full max-w-md p-8 mx-auto mt-10 bg-gray-900 border border-gray-800 shadow-2xl rounded-xl bg-opacity-80 backdrop-blur-lg backdrop-filter"
     >
-      <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text">
+      <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-linear-to-r from-green-400 to-emerald-600 bg-clip-text">
         Dashboard
       </h2>
 
@@ -50,9 +52,10 @@ const DashboardPage = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => logout()}
-          className="w-full px-4 py-3 font-bold text-white rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+          disabled={isLoggingOut}
+          className="w-full px-4 py-3 font-bold text-white rounded-lg shadow-lg bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50"
         >
-          Logout
+          {isLoggingOut ? "Logging out..." : "Logout"}
         </motion.button>
       </div>
     </motion.div>

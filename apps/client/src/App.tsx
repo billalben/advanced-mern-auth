@@ -3,7 +3,8 @@ import { lazy, Suspense } from "react";
 import type * as React from "react";
 import { Toaster } from "react-hot-toast";
 import FloatingShapes from "./components/FloatingShapes";
-import { useAuthStore } from "./store/authStore";
+import { useAuth } from "./features/auth/useAuth";
+import { useCheckAuthQuery } from "./features/auth/queries";
 
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -13,13 +14,13 @@ const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, isVerified } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (user?.isVerified === false) {
+  if (!isVerified) {
     return <Navigate to="/verify-email" replace />;
   }
 
@@ -31,75 +32,93 @@ const RedirectAuthenticatedUser = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, isVerified } = useAuth();
 
-  if (isAuthenticated && user?.isVerified) {
+  if (isAuthenticated && isVerified) {
     return <Navigate to="/" replace />;
   }
 
   return children;
 };
 
+const AuthGate = ({ children }: { children: React.ReactNode }) => {
+  const { isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-white">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
+
 const App = () => {
+  useCheckAuthQuery();
+
   return (
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-linear-to-br from-gray-900 via-green-900 to-emerald-900">
       <FloatingShapes />
       <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/register"
-            element={
-              <RedirectAuthenticatedUser>
-                <RegisterPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <RedirectAuthenticatedUser>
-                <LoginPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/verify-email"
-            element={
-              <RedirectAuthenticatedUser>
-                <VerifyEmailPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
+        <AuthGate>
+          <Routes>
+            {/* Public Routes */}
+            <Route
+              path="/register"
+              element={
+                <RedirectAuthenticatedUser>
+                  <RegisterPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <RedirectAuthenticatedUser>
+                  <LoginPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/verify-email"
+              element={
+                <RedirectAuthenticatedUser>
+                  <VerifyEmailPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
 
-          <Route
-            path="/forgot-password"
-            element={
-              <RedirectAuthenticatedUser>
-                <ForgotPasswordPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
+            <Route
+              path="/forgot-password"
+              element={
+                <RedirectAuthenticatedUser>
+                  <ForgotPasswordPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
 
-          <Route
-            path="/reset-password/:token"
-            element={
-              <RedirectAuthenticatedUser>
-                <ResetPasswordPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
+            <Route
+              path="/reset-password/:token"
+              element={
+                <RedirectAuthenticatedUser>
+                  <ResetPasswordPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
 
-          {/* Protected Route */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+            {/* Protected Route */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AuthGate>
       </Suspense>
       <Toaster />
     </div>

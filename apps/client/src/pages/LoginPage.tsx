@@ -4,17 +4,20 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import Input from "../components/Input";
-import { useAuthStore } from "../store/authStore";
+import { extractErrorMessage } from "../lib/api/auth.api";
+import { useLoginMutation } from "../features/auth/mutations";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { login, isLoading, error } = useAuthStore();
+  const { mutateAsync: login, isPending, error } = useLoginMutation();
+
+  const errorMessage = error ? extractErrorMessage(error) : null;
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await login(email, password);
+    await login({ email, password });
   };
 
   return (
@@ -25,7 +28,7 @@ const LoginPage = () => {
       className="w-full max-w-md overflow-hidden bg-gray-800 bg-opacity-50 shadow-xl rounded-2xl backdrop-blur-xl backdrop-filter"
     >
       <div className="p-8">
-        <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">
+        <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-linear-to-r from-green-400 to-emerald-500 bg-clip-text">
           Welcome Back
         </h2>
 
@@ -37,7 +40,7 @@ const LoginPage = () => {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            aria-invalid={!!error}
+            aria-invalid={!!errorMessage}
           />
 
           <Input
@@ -47,7 +50,7 @@ const LoginPage = () => {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            aria-invalid={!!error}
+            aria-invalid={!!errorMessage}
           />
 
           <div className="flex items-center mb-6">
@@ -58,16 +61,18 @@ const LoginPage = () => {
               Forgot password?
             </Link>
           </div>
-          {error && <p className="mb-2 font-semibold text-red-500">{error}</p>}
+          {errorMessage && (
+            <p className="mb-2 font-semibold text-red-500">{errorMessage}</p>
+          )}
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full px-4 py-3 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="w-full px-4 py-3 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             type="submit"
-            disabled={isLoading}
+            disabled={isPending}
           >
-            {isLoading ? (
+            {isPending ? (
               <Loader className="w-6 h-6 mx-auto animate-spin" />
             ) : (
               "Login"
