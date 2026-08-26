@@ -14,6 +14,10 @@ export class AppError extends Error {
     return new AppError(400, message, code);
   }
 
+  static conflict(message: string, code?: string): AppError {
+    return new AppError(409, message, code);
+  }
+
   static unauthorized(message = "Unauthorized", code?: string): AppError {
     return new AppError(401, message, code);
   }

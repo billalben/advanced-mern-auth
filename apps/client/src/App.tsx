@@ -4,7 +4,6 @@ import type * as React from "react";
 import { Toaster } from "react-hot-toast";
 import FloatingShapes from "./components/FloatingShapes";
 import { useAuth } from "./features/auth/useAuth";
-import { useCheckAuthQuery } from "./features/auth/queries";
 
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -56,8 +55,6 @@ const AuthGate = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  useCheckAuthQuery();
-
   return (
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-linear-to-br from-gray-900 via-green-900 to-emerald-900">
       <FloatingShapes />

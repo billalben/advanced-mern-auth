@@ -32,6 +32,31 @@ export const VERIFICATION_EMAIL_TEMPLATE = (
   </html>
 `;
 
+export const WELCOME_EMAIL_TEMPLATE = (name = "there"): string => `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(to right, #4CAF50, #369d3b); padding: 20px; text-align: center;">
+      <h1 style="color: white; margin: 0; letter-spacing: 4px;">Welcome aboard!</h1>
+    </div>
+    <div style="background-color: #f9f9f9; padding: 20px;">
+      <p>Hi ${name},</p>
+      <p>Your email has been verified and your account is now fully active.</p>
+      <p>You can now sign in and start using the app.</p>
+      <p>Best regards,<br>Your App Team</p>
+    </div>
+    <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+      <p>This is an automated message, please do not reply to this email.</p>
+    </div>
+  </body>
+  </html>
+`;
+
 export const PASSWORD_RESET_REQUEST_TEMPLATE = (resetURL = "ERROR"): string => `
   <!DOCTYPE html>
   <html lang="en">

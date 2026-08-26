@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "../../lib/query/keys";
+import { useCheckAuthQuery } from "./queries";
 import type { User } from "./auth.types";
 
 interface UseAuthResult {
@@ -10,14 +9,9 @@ interface UseAuthResult {
 }
 
 export const useAuth = (): UseAuthResult => {
-  const { data, isLoading } = useQuery<User | null>({
-    queryKey: queryKeys.auth.me(),
-    queryFn: () => Promise.resolve(null),
-    enabled: false,
-    staleTime: Infinity,
-  });
+  const { data, isLoading } = useCheckAuthQuery();
 
-  const user = data ?? null;
+  const user = (data as User | null | undefined) ?? null;
 
   return {
     user,

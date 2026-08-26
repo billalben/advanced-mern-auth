@@ -11,14 +11,18 @@ import { api } from "./client";
 export interface ApiError {
   status: number;
   message: string;
+  code?: string;
 }
 
 export const toApiError = (error: unknown): ApiError => {
   if (error instanceof AxiosError) {
     const status = error.response?.status ?? 0;
-    const message =
-      error.response?.data?.message ?? error.message ?? "Request failed";
-    return { status, message };
+    const data = error.response?.data as
+      | { message?: string; code?: string }
+      | undefined;
+    const message = data?.message ?? error.message ?? "Request failed";
+    const code = data?.code;
+    return code ? { status, message, code } : { status, message };
   }
   return { status: 0, message: "Request failed" };
 };

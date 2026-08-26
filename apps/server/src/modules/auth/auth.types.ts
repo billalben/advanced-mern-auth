@@ -11,6 +11,15 @@ export type AuthedRequest = Request & {
   validated?: AuthedRequestBody;
 };
 
+export interface PublicUser {
+  id: string;
+  email: string;
+  name: string;
+  isVerified: boolean;
+  createdAt: Date;
+  lastLogin: Date;
+}
+
 export interface SignupSuccess {
   success: true;
   message: string;
@@ -20,13 +29,13 @@ export interface SignupSuccess {
 export interface VerifyEmailSuccess {
   success: true;
   message: string;
-  user: Record<string, unknown>;
+  user: PublicUser;
 }
 
 export interface LoginSuccess {
   success: true;
   message: string;
-  user: Record<string, unknown>;
+  user: PublicUser;
 }
 
 export interface GenericSuccess {
@@ -36,5 +45,5 @@ export interface GenericSuccess {
 
 export interface CheckAuthSuccess {
   success: true;
-  user: Record<string, unknown>;
+  user: PublicUser;
 }

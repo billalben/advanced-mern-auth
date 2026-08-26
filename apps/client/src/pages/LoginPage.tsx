@@ -2,13 +2,16 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Input from "../components/Input";
 import { extractErrorMessage } from "../lib/api/auth.api";
 import { useLoginMutation } from "../features/auth/mutations";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const prefilledEmail =
+    (location.state as { email?: string } | null)?.email ?? "";
+  const [email, setEmail] = useState(prefilledEmail);
   const [password, setPassword] = useState("");
 
   const { mutateAsync: login, isPending, error } = useLoginMutation();

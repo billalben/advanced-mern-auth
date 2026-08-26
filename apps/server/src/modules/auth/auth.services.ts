@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { randomBytes } from "node:crypto";
 import type { Response } from "express";
 import { env } from "../../config/env";
+import { logger } from "../../config/logger";
 import { AppError } from "../../shared/errors/AppError";
 import { User, type UserDoc } from "./models/user.model";
 import {
@@ -10,11 +11,12 @@ import {
   sendResetSuccessEmail,
   sendVerificationEmail,
   sendWelcomeEmail,
-} from "./mailtrap/emails";
+} from "./email/senders";
 import type {
   LoginInput,
   SignupInput,
 } from "./auth.schemas";
+import type { PublicUser } from "./auth.types";
 
 const TOKEN_EXPIRATION = "1d";
 const COOKIE_EXPIRATION_MS = 86_400_000; // 1 day
@@ -37,14 +39,21 @@ const setAuthCookie = (res: Response, token: string): void => {
   });
 };
 
-const stripPassword = (
-  user: UserDoc,
-): Omit<UserDoc, "password"> & { password: undefined } => {
+const toPublicUser = (user: UserDoc): PublicUser => {
+  const doc = user as unknown as {
+    toObject: () => Record<string, unknown>;
+  };
+  const obj = doc.toObject();
+  const id = obj._id as { toString: () => string };
+  const createdAt = obj.createdAt as Date;
+  const lastLogin = obj.lastLogin as Date;
   return {
-    ...user,
-    password: undefined,
-  } as unknown as Omit<UserDoc, "password"> & {
-    password: undefined;
+    id: id.toString(),
+    email: obj.email as string,
+    name: obj.name as string,
+    isVerified: obj.isVerified as boolean,
+    createdAt,
+    lastLogin,
   };
 };
 
@@ -55,7 +64,7 @@ export const signup = async (
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw AppError.badRequest("User already exists");
+    throw AppError.conflict("User already exists", "EMAIL_TAKEN");
   }
 
   const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
@@ -73,14 +82,19 @@ export const signup = async (
     ),
   });
 
-  await sendVerificationEmail(user.email, verificationToken);
+  void sendVerificationEmail(user.email, verificationToken).catch((error) => {
+    logger.error(
+      { err: error, email: user.email, userId: user._id },
+      "Background verification email failed",
+    );
+  });
 
   return { name, email };
 };
 
 export const verifyEmail = async (
   code: string,
-): Promise<{ user: Record<string, unknown> }> => {
+): Promise<{ user: PublicUser }> => {
   const user = await User.findOne({
     verificationToken: code,
     verificationTokenExpiresAt: { $gt: new Date() },
@@ -97,15 +111,20 @@ export const verifyEmail = async (
   user.verificationTokenExpiresAt = undefined as unknown as Date;
   await user.save();
 
-  await sendWelcomeEmail(user.email, user.name);
+  void sendWelcomeEmail(user.email, user.name).catch((error) => {
+    logger.error(
+      { err: error, email: user.email, userId: user._id },
+      "Background welcome email failed",
+    );
+  });
 
-  return { user: stripPassword(user) as unknown as Record<string, unknown> };
+  return { user: toPublicUser(user) };
 };
 
 export const login = async (
   res: Response,
   input: LoginInput,
-): Promise<{ user: Record<string, unknown> }> => {
+): Promise<{ user: PublicUser }> => {
   const { email, password } = input;
 
   const user = await User.findOne({ email });
@@ -124,7 +143,7 @@ export const login = async (
   user.lastLogin = new Date();
   await user.save();
 
-  return { user: stripPassword(user) as unknown as Record<string, unknown> };
+  return { user: toPublicUser(user) };
 };
 
 export const logout = (res: Response): void => {
@@ -147,7 +166,12 @@ export const forgotPassword = async (email: string): Promise<void> => {
   await user.save();
 
   const resetURL = `${env.CLIENT_URL}/reset-password/${resetToken}`;
-  await sendPasswordResetEmail(user.email, resetURL);
+  void sendPasswordResetEmail(user.email, resetURL).catch((error) => {
+    logger.error(
+      { err: error, email: user.email },
+      "Background password reset email failed",
+    );
+  });
 };
 
 export const resetPassword = async (
@@ -169,17 +193,20 @@ export const resetPassword = async (
   user.resetPasswordExpiresAt = undefined as unknown as Date;
   await user.save();
 
-  await sendResetSuccessEmail(user.email);
+  void sendResetSuccessEmail(user.email).catch((error) => {
+    logger.error(
+      { err: error, email: user.email },
+      "Background reset success email failed",
+    );
+  });
 };
 
 export const checkAuth = async (
   userId: string,
-): Promise<{ user: Record<string, unknown> }> => {
+): Promise<{ user: PublicUser }> => {
   const user = await User.findById(userId).select("-password");
   if (!user) {
     throw AppError.badRequest("User not found");
   }
-  return {
-    user: user.toObject() as unknown as Record<string, unknown>,
-  };
+  return { user: toPublicUser(user) };
 };

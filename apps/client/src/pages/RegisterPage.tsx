@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import { extractErrorMessage } from "../lib/api/auth.api";
+import { toApiError } from "../lib/api/auth.api";
 import { useSignupMutation } from "../features/auth/mutations";
 import toast from "react-hot-toast";
 
@@ -17,7 +17,9 @@ const RegisterPage = () => {
 
   const { mutateAsync: register, isPending, error } = useSignupMutation();
 
-  const errorMessage = error ? extractErrorMessage(error) : null;
+  const apiError = error ? toApiError(error) : null;
+  const errorMessage = apiError?.message ?? null;
+  const isEmailTaken = apiError?.code === "EMAIL_TAKEN";
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -83,7 +85,21 @@ const RegisterPage = () => {
             aria-invalid={!!errorMessage}
           />
           {errorMessage && (
-            <p className="mt-2 font-semibold text-red-500">{errorMessage}</p>
+            <div className="mt-2">
+              <p className="font-semibold text-red-500">{errorMessage}</p>
+              {isEmailTaken && (
+                <p className="mt-1 text-sm text-gray-300">
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    state={{ email }}
+                    className="text-green-400 hover:underline"
+                  >
+                    Sign in instead
+                  </Link>
+                </p>
+              )}
+            </div>
           )}
 
           <PasswordStrengthMeter password={password} />
