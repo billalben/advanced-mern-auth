@@ -11,6 +11,7 @@ export const connectDB = async (connectionURI: string): Promise<void> => {
         deprecationErrors: true,
       },
     });
+
     logger.info("Connected to MongoDB");
   } catch (error) {
     logger.error({ err: error }, "Error connecting to MongoDB");

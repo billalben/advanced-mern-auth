@@ -19,31 +19,3 @@ export interface PublicUser {
   createdAt: Date;
   lastLogin: Date;
 }
-
-export interface SignupSuccess {
-  success: true;
-  message: string;
-  user: { name: string; email: string };
-}
-
-export interface VerifyEmailSuccess {
-  success: true;
-  message: string;
-  user: PublicUser;
-}
-
-export interface LoginSuccess {
-  success: true;
-  message: string;
-  user: PublicUser;
-}
-
-export interface GenericSuccess {
-  success: true;
-  message: string;
-}
-
-export interface CheckAuthSuccess {
-  success: true;
-  user: PublicUser;
-}

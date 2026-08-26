@@ -14,12 +14,23 @@ export interface ApiError {
   code?: string;
 }
 
+export interface ApiFailureBody {
+  success: false;
+  message: string;
+  code?: string;
+  data?: { fields?: { path: string; message: string }[] };
+}
+
+export interface ApiSuccess<T> {
+  success: true;
+  message?: string;
+  data: T;
+}
+
 export const toApiError = (error: unknown): ApiError => {
   if (error instanceof AxiosError) {
     const status = error.response?.status ?? 0;
-    const data = error.response?.data as
-      | { message?: string; code?: string }
-      | undefined;
+    const data = error.response?.data as ApiFailureBody | undefined;
     const message = data?.message ?? error.message ?? "Request failed";
     const code = data?.code;
     return code ? { status, message, code } : { status, message };
@@ -30,21 +41,23 @@ export const toApiError = (error: unknown): ApiError => {
 export const extractErrorMessage = (error: unknown): string =>
   toApiError(error).message;
 
+export interface SignupResult {
+  name: string;
+  email: string;
+}
+
 export const authApi = {
-  signup: async (data: SignupInput): Promise<User> => {
-    const { data: res } = await api.post<{ success: true; user: User }>(
+  signup: async (data: SignupInput): Promise<SignupResult> => {
+    const { data: body } = await api.post<ApiSuccess<SignupResult>>(
       "/signup",
       data,
     );
-    return res.user;
+    return body.data;
   },
 
   login: async (data: LoginInput): Promise<User> => {
-    const { data: res } = await api.post<{ success: true; user: User }>(
-      "/login",
-      data,
-    );
-    return res.user;
+    const { data: body } = await api.post<ApiSuccess<User>>("/login", data);
+    return body.data;
   },
 
   logout: async (): Promise<void> => {
@@ -52,19 +65,16 @@ export const authApi = {
   },
 
   verifyEmail: async (code: string): Promise<User> => {
-    const { data: res } = await api.post<{ success: true; user: User }>(
-      "/verify-email",
-      { code },
-    );
-    return res.user;
+    const { data: body } = await api.post<ApiSuccess<User>>("/verify-email", {
+      code,
+    });
+    return body.data;
   },
 
   checkAuth: async (): Promise<User | null> => {
     try {
-      const { data: res } = await api.get<{ success: true; user: User }>(
-        "/check-auth",
-      );
-      return res.user;
+      const { data: body } = await api.get<ApiSuccess<User>>("/check-auth");
+      return body.data;
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 401) {
         return null;
@@ -74,21 +84,21 @@ export const authApi = {
   },
 
   forgotPassword: async (data: ForgotPasswordInput): Promise<string> => {
-    const { data: res } = await api.post<{ success: true; message: string }>(
+    const { data: body } = await api.post<ApiSuccess<null>>(
       "/forgot-password",
       data,
     );
-    return res.message;
+    return body.message ?? "";
   },
 
   resetPassword: async ({
     token,
     password,
   }: ResetPasswordInput & { token: string }): Promise<string> => {
-    const { data: res } = await api.post<{ success: true; message: string }>(
+    const { data: body } = await api.post<ApiSuccess<null>>(
       `/reset-password/${token}`,
       { password },
     );
-    return res.message;
+    return body.message ?? "";
   },
 };

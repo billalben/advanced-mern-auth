@@ -7,96 +7,58 @@ import type {
   SignupInput,
   VerifyEmailInput,
 } from "./auth.schemas";
-
-const getValidated = (req: Request): NonNullable<typeof req.validated> => {
-  const v = req.validated;
-  if (!v) throw new Error("Validator middleware not applied");
-  return v;
-};
+import { ok, created, fail } from "../../shared/http/response";
+import { getValidated } from "../../shared/middlewares/validate";
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
-  const { body } = getValidated(req) as { body: SignupInput };
-  const created = await service.signup(body);
-
-  res.status(201).json({
-    success: true,
-    message: "User created successfully",
-    user: created,
-  });
+  const { body } = getValidated<{ body: SignupInput }>(req);
+  const result = await service.signup(body);
+  created(res, result, "User created successfully");
 };
 
 export const verifyEmail = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { body } = getValidated(req) as { body: VerifyEmailInput };
+  const { body } = getValidated<{ body: VerifyEmailInput }>(req);
   const { user } = await service.verifyEmail(body.code);
-
-  res.status(200).json({
-    success: true,
-    message: "Email verified successfully",
-    user,
-  });
+  ok(res, user, "Email verified successfully");
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const { body } = getValidated(req) as { body: LoginInput };
+  const { body } = getValidated<{ body: LoginInput }>(req);
   const { user } = await service.login(res, body);
-
-  res.status(200).json({
-    success: true,
-    message: "Logged in successfully",
-    user,
-  });
+  ok(res, user, "Logged in successfully");
 };
 
 export const logout = (_req: Request, res: Response): void => {
   service.logout(res);
-
-  res.status(200).json({
-    success: true,
-    message: "Logged out successfully",
-  });
+  ok(res, null, "Logged out successfully");
 };
 
 export const forgotPassword = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { body } = getValidated(req) as { body: ForgotPasswordInput };
+  const { body } = getValidated<{ body: ForgotPasswordInput }>(req);
   await service.forgotPassword(body.email);
-
-  res.status(200).json({
-    success: true,
-    message: "Password reset link sent to your email",
-  });
+  ok(res, null, "Password reset link sent to your email");
 };
 
 export const resetPassword = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { params, body } = getValidated(req) as ResetPasswordInput;
+  const { params, body } = getValidated<ResetPasswordInput>(req);
   await service.resetPassword(params.token, body.password);
-
-  res.status(200).json({
-    success: true,
-    message: "Password reset successful",
-  });
+  ok(res, null, "Password reset successful");
 };
 
 export const checkAuth = async (req: Request, res: Response): Promise<void> => {
   if (!req.userId) {
-    res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-    });
+    fail(res, 401, "Unauthorized");
     return;
   }
   const { user } = await service.checkAuth(req.userId);
-
-  res.status(200).json({
-    success: true,
-    user,
-  });
+  ok(res, user);
 };

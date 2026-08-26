@@ -35,3 +35,12 @@ export const validateAll =
     req.validated = result.data as never;
     next();
   };
+
+export const getValidated = <T>(req: Request): T => {
+  const v = req.validated;
+  if (!v) {
+    throw new Error("Validator middleware not applied");
+  }
+
+  return v as T;
+};

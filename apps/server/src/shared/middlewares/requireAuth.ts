@@ -23,12 +23,11 @@ export const requireAuth = (
     if (!decoded?.userId) {
       throw AppError.unauthorized("Unauthorized - invalid token");
     }
+
     req.userId = decoded.userId;
     next();
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw AppError.internal("Server error");
+    if (error instanceof AppError) throw error;
+    throw AppError.unauthorized("Unauthorized - invalid token");
   }
 };

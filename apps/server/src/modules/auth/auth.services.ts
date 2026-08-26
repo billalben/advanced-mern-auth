@@ -12,10 +12,7 @@ import {
   sendVerificationEmail,
   sendWelcomeEmail,
 } from "./email/senders";
-import type {
-  LoginInput,
-  SignupInput,
-} from "./auth.schemas";
+import type { LoginInput, SignupInput } from "./auth.schemas";
 import type { PublicUser } from "./auth.types";
 
 const TOKEN_EXPIRATION = "1d";
@@ -101,9 +98,7 @@ export const verifyEmail = async (
   });
 
   if (!user) {
-    throw AppError.badRequest(
-      "Invalid or expired verification code",
-    );
+    throw AppError.badRequest("Invalid or expired verification code");
   }
 
   user.isVerified = true;
@@ -128,14 +123,10 @@ export const login = async (
   const { email, password } = input;
 
   const user = await User.findOne({ email });
-  if (!user) {
-    throw AppError.badRequest("Invalid credentials");
-  }
+  if (!user) throw AppError.badRequest("Invalid credentials");
 
   const ok = await bcrypt.compare(password, user.password);
-  if (!ok) {
-    throw AppError.badRequest("Invalid credentials");
-  }
+  if (!ok) throw AppError.badRequest("Invalid credentials");
 
   const token = signAuthToken(user._id.toString());
   setAuthCookie(res, token);
@@ -152,14 +143,10 @@ export const logout = (res: Response): void => {
 
 export const forgotPassword = async (email: string): Promise<void> => {
   const user = await User.findOne({ email });
-  if (!user) {
-    throw AppError.badRequest("User not found");
-  }
+  if (!user) throw AppError.badRequest("User not found");
 
   const resetToken = randomBytes(10).toString("hex");
-  const resetTokenExpiresAt = new Date(
-    Date.now() + RESET_TOKEN_TTL_MS,
-  );
+  const resetTokenExpiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
 
   user.resetPasswordToken = resetToken;
   user.resetPasswordExpiresAt = resetTokenExpiresAt;
@@ -183,9 +170,7 @@ export const resetPassword = async (
     resetPasswordExpiresAt: { $gt: new Date() },
   });
 
-  if (!user) {
-    throw AppError.badRequest("Invalid or expired reset token");
-  }
+  if (!user) throw AppError.badRequest("Invalid or expired reset token");
 
   const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
   user.password = hashedPassword;
@@ -205,8 +190,7 @@ export const checkAuth = async (
   userId: string,
 ): Promise<{ user: PublicUser }> => {
   const user = await User.findById(userId).select("-password");
-  if (!user) {
-    throw AppError.badRequest("User not found");
-  }
+  if (!user) throw AppError.badRequest("User not found");
+
   return { user: toPublicUser(user) };
 };
